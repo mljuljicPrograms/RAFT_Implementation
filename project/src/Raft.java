@@ -19,7 +19,7 @@ public class Raft {
     public void initRaft() {
         //start random timer
         Random r = new Random();
-        int randTime = r.nextInt(300) + 100;
+        int randTime = r.nextInt(500) + 100;
         System.out.println(randTime);
 
         //Start Listening on two separate ports
@@ -32,9 +32,10 @@ public class Raft {
         }catch (SocketException s){
             s.printStackTrace();
         }
-        startElection();
-        //initTimer(randTime);
+        //Look in to observables (https://stackoverflow.com/questions/6270132/create-a-custom-event-in-java /  https://en.wikipedia.org/wiki/Observer_pattern)
+        //implement new class possibly or place above/ below this one
 
+        startElection();
         //[SENDER ID |"PIECE NAME" | ORIGIN LOCATION | NEW LOCATION]
 
     }
@@ -46,19 +47,22 @@ public class Raft {
             public void run() {
                 int tl = timeLeft.decrementAndGet();
                 if (tl == 0) {
-                    startElection();
-
+                    cancel();
+                    wolf.interrupt();
+                    rho.interrupt();
                 }
             }
         };
-        timer = new Timer();
-        timer.schedule(task, 0, 1); //changed to milliseconds
 
+        timer = new Timer();
+        timer.schedule(task, 0, 1000);
+        timer.cancel();
     }
 
     //Prerequisite- timer runs out
     public void startElection(){
         System.out.println("election started");
+        //. check wolf and rho for sent votes
 
         //1. interrupt listeners
         wolf.interrupt();
@@ -68,17 +72,19 @@ public class Raft {
 
         boolean doneWolf = false;
         boolean doneRho = false;
+
         while (!doneWolf){
             System.out.println("while loop wolf");
             doneWolf = wolf.setCommand("l", "r");
         }
-        wolf.run();
 
-        while (!doneRho){
+       while (!doneRho){
             System.out.println("while loop rho");
             doneRho = rho.setCommand("l", "r");
         }
 
+       //get these running in parallel!
+        wolf.run();
         rho.run();
 
 

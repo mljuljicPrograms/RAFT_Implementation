@@ -28,13 +28,13 @@ public class UDPService extends Thread {
     public void run() {
         //I think we need to include a switch statement to manage when we want to listen vs when we want to send
         System.out.println(command);
-        //if(command.equals("l")){
-            //try {
-                //DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
+        if(command.equals("l")){
+            try {
+                DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
                 System.out.println("listening " + socket.toString());
-                //socket.receive(inPacket);
-                //InetAddress address = inPacket.getAddress();
-                //int port = inPacket.getPort();
+                socket.receive(inPacket);
+                InetAddress address = inPacket.getAddress();
+                int port = inPacket.getPort();
 
                 /* Packet design
                  *
@@ -50,7 +50,7 @@ public class UDPService extends Thread {
             System.out.println("socket open");
             //socket.close();
             System.out.println("socket closed");
-        //}
+        }
     }
 
     public boolean setCommand(String expectedValue, String newValue) {
