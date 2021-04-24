@@ -60,6 +60,4 @@ public class UDPService extends Thread {
         command = newValue;
         return true;
     }
-
-
 }
