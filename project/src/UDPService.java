@@ -43,10 +43,10 @@ public class UDPService extends Thread {
                 //blocked and waiting
                 //figure out what packets were designing
 
-            //} catch (IOException e) {
-               // e.printStackTrace();
-            //}
-        //}else {
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else {
             System.out.println("socket open");
             //socket.close();
             System.out.println("socket closed");

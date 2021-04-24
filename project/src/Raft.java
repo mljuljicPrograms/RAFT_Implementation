@@ -65,8 +65,8 @@ public class Raft {
         //. check wolf and rho for sent votes
 
         //1. interrupt listeners
-        wolf.interrupt();
-        rho.interrupt();
+        //wolf.interrupt();
+        //rho.interrupt();
         //2. vote for yourself
         myVotes = 1;
 
