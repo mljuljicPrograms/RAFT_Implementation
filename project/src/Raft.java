@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.nio.ByteBuffer;
 
 //ASSUME WE ARE ON PI CURRENTLY
 //ASSUME WE ARE ON PI CURRENTLY
@@ -92,10 +93,6 @@ public class Raft {
 
         startElection();
 
-        }catch (SocketException s){
-            s.printStackTrace();
-        }
-
 
         //Look in to observables (https://stackoverflow.com/questions/6270132/create-a-custom-event-in-java /  https://en.wikipedia.org/wiki/Observer_pattern)
         //implement new class possibly or place above/ below this one
@@ -124,7 +121,7 @@ public class Raft {
         //3. Send out requests for votes and
 
 
-        System.out.println("finished");
+
 
         //signals election
 

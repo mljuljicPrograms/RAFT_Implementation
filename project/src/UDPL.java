@@ -25,8 +25,6 @@ public class UDPL  implements Callable<DatagramPacket> {
     }
 
 
-
-
     @Override
     public DatagramPacket call()  {
         //I think we need to include a switch statement to manage when we want to listen vs when we want to send
