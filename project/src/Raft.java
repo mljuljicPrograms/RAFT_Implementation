@@ -128,7 +128,6 @@ public class Raft {
 
         //signals election
 
-
         //3. tell everyone there is an election process and you voted with listeners in the run command of UDPService
         //4. block any incoming votes
     }
