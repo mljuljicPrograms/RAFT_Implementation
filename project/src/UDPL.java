@@ -1,3 +1,4 @@
+import javax.sound.midi.Soundbank;
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -31,6 +32,7 @@ public class UDPL  implements Callable<DatagramPacket> {
         try {
             DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
             System.out.println("listening at " + socket.toString());
+            System.out.println(time);
             socket.setSoTimeout(time);
             socket.receive(inPacket);
 
@@ -56,12 +58,13 @@ public class UDPL  implements Callable<DatagramPacket> {
                 while (true) {
                     byte[] logPiece = inPacket.getData();
                     logging.write(inPacket.getAddress().toString() + ":" + inPacket.getPort() + "-->" + Arrays.toString(logPiece));
-                    socket.setSoTimeout(1);
+                    socket.setSoTimeout(15000);
                     socket.receive(inPacket);
                 }
             }
         } catch (IOException e) {
-            //e.printStackTrace();
+
+            e.printStackTrace();
             //return null;
         }
         return null;

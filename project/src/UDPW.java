@@ -8,15 +8,23 @@ import java.util.concurrent.Future;
 
 public class UDPW  implements Callable<DatagramPacket> {
     protected DatagramSocket socket = null;
+    private int port;
     private boolean onElection;
+    private String address;
     private byte[] buf = new byte[512];
 
     //PI: 129.3.20.26
     //Wolf: 129.3.20.36
     //Rho: 129.3.20.24
 
-    public UDPW(int port, boolean onElection) throws SocketException {
-        socket = new DatagramSocket(port);
+    public UDPW(int port, boolean onElection, String address) {
+        this.port = port;
+        try {
+            socket = new DatagramSocket(port);
+        }
+        catch(SocketException s) {
+            s.printStackTrace();
+        }
         this.onElection = onElection;
     }
 
@@ -24,19 +32,23 @@ public class UDPW  implements Callable<DatagramPacket> {
     @Override
     public DatagramPacket call() {
         //I think we need to include a switch statement to manage when we want to listen vs when we want to send
+        //I think we can use a mix send and received to make the the if run like a switch - Matt L
         if (onElection) {
             try {
                 byte[] voteForMe = "Vote For Me".getBytes(StandardCharsets.UTF_8);
 
-                try {
-                    DatagramPacket startElection = new DatagramPacket(voteForMe, voteForMe.length, InetAddress.getByName("129.3.20.36"), 2811);
-                    socket.send(startElection);
-                    DatagramPacket RecElection = new DatagramPacket(new byte[6], 6);
-                    socket.receive(RecElection);
-                } catch (UnknownHostException u) {
-                    u.printStackTrace();
-                    System.exit(0);
-                }
+            try {
+                DatagramPacket startElection = new DatagramPacket(voteForMe, voteForMe.length, InetAddress.getByName(address), port);
+                socket.send(startElection);
+                DatagramPacket recElection = new DatagramPacket(new byte[6], 6);
+                socket.setSoTimeout(15000);
+                socket.receive(recElection);
+
+                return recElection;
+            } catch (IOException u) {
+                u.printStackTrace();
+                System.exit(0);
+            }
 
 
                 //electionTimer.stopTimer();
@@ -57,10 +69,26 @@ public class UDPW  implements Callable<DatagramPacket> {
             return null;
         }
         else {
-            //regular packets
+            DatagramPacket inPacket = new DatagramPacket(buf, buf.length);
 
+            while (true) {
+
+                try {
+                    socket.setSoTimeout(7500);
+                    socket.receive(inPacket);
+
+                } catch (IOException e) {
+
+                    try {
+                        DatagramPacket heartBeat = new DatagramPacket("alive".getBytes(StandardCharsets.UTF_8), "alive".getBytes(StandardCharsets.UTF_8).length, InetAddress.getByName(address), port);
+                        socket.send(heartBeat);
+                        socket.setSoTimeout(7500);
+                        socket.receive(inPacket);
+                    } catch (IOException i) {}
+
+                }
+            }
         }
-        return null;
     }
 
 

@@ -6,6 +6,7 @@ import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.*;
@@ -24,8 +25,11 @@ public class Raft {
     private AtomicInteger timeLeft;
     private UDPL wolfL;
     private UDPL rhoL;
+    private UDPW wolfC;
+    private UDPW rhoC;
     static final ExecutorService listeners = Executors.newFixedThreadPool(2);
     static final ExecutorService followers = Executors.newFixedThreadPool(2);
+    static final ExecutorService commanders = Executors.newFixedThreadPool(2);
     private List<Future<DatagramPacket>> futures = new ArrayList<>();
     private int myVotes;
     private Random r = new Random();
@@ -33,11 +37,12 @@ public class Raft {
     //Things I think we are going to use (Matt L)
     //private boolean didVote = false;
 
-    public Raft(int time) throws SocketException {
-        wolfL = new UDPL(2811, (time * 1000));
-        rhoL = new UDPL(2812,(time * 1000));
+    public Raft(int time) throws IOException {
         randTime = r.nextInt(time) + 1;
-
+        wolfL = new UDPL(2811, (randTime * 1000));
+        rhoL = new UDPL(2812,(randTime * 1000));
+        wolfAddress = InetAddress.getByName("129.3.20.36");
+        rhoAddress = InetAddress.getByName("129.3.20.24");
     }
     //ASSUME WE ARE ON PI CURRENTLY
     public void initRaft() throws InterruptedException {
@@ -108,20 +113,44 @@ public class Raft {
 
         //             [     Data      ]
         //[UDP HEADERS | "Vote For Me"| MAC Address of machine voted for] - Just for voting
-        //This might be an error
-        //listeners.submit();
-        //listeners.submit();
-
-
 
         System.out.println("Election Started");
-        //1. Check if we already voted. If so stop here. -> IF WE CALLED THIS METHOD, WE DID NOT VOTE!
-        //2. vote for yourself
+        myVotes = 1;
 
-        //3. Send out requests for votes and
+        wolfC = new UDPW(2813, true,"129.3.20.36");
+        rhoC = new UDPW(2814, true,"129.3.20.24");
+        futures.add(0, commanders.submit(wolfC));
+        futures.add(1, commanders.submit(rhoC));
+        System.out.println(futures.get(0).isDone());
+        System.out.println(futures.get(1).isDone());
 
+        System.out.println(futures.get(0).toString());
+        System.out.println(futures.get(1).toString());
+        while (!futures.get(0).isDone() || !futures.get(1).isDone()){
 
-
+        }
+        System.out.println("Checking futures");
+        if(futures.get(0).isDone()){
+            try {
+                DatagramPacket vote = futures.get(0).get();
+                myVotes++;
+                if(myVotes > 1){
+                    leader();
+                }
+            } catch (ExecutionException | InterruptedException weird){
+                weird.printStackTrace();
+            }
+        }else if (!futures.get(1).isDone()){
+            try {
+                DatagramPacket vote2 = futures.get(1).get();
+                myVotes++;
+                if(myVotes > 1){
+                    leader();
+                }
+            } catch (ExecutionException | InterruptedException weird){
+                weird.printStackTrace();
+            }
+        }
 
         //signals election
 
@@ -130,7 +159,12 @@ public class Raft {
     }
 
     public void leader(){
+        wolfC = new UDPW(2813, false,"129.3.20.36");
+        rhoC = new UDPW(2814, false,"129.3.20.24");
+        futures.add(0, commanders.submit(wolfC));
+        futures.add(1, commanders.submit(rhoC));
 
+        while (!futures.get(0).isDone() || !futures.get(1).isDone());
 
     }
 
