@@ -34,6 +34,8 @@ public class Raft {
     private int myVotes;
     private Random r = new Random();
     private int randTime;
+    private InetAddress rhoAddress;
+    private InetAddress wolfAddress;
     //Things I think we are going to use (Matt L)
     //private boolean didVote = false;
 

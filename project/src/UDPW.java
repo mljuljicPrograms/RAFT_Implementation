@@ -26,6 +26,7 @@ public class UDPW  implements Callable<DatagramPacket> {
             s.printStackTrace();
         }
         this.onElection = onElection;
+        this.address = address;
     }
 
 
@@ -34,8 +35,8 @@ public class UDPW  implements Callable<DatagramPacket> {
         //I think we need to include a switch statement to manage when we want to listen vs when we want to send
         //I think we can use a mix send and received to make the the if run like a switch - Matt L
         if (onElection) {
-            try {
-                byte[] voteForMe = "Vote For Me".getBytes(StandardCharsets.UTF_8);
+
+            byte[] voteForMe = "Vote For Me".getBytes(StandardCharsets.UTF_8);
 
             try {
                 DatagramPacket startElection = new DatagramPacket(voteForMe, voteForMe.length, InetAddress.getByName(address), port);
@@ -63,9 +64,7 @@ public class UDPW  implements Callable<DatagramPacket> {
 
                 //figure out what packets were designing
 
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+
             return null;
         }
         else {
