@@ -43,7 +43,7 @@ public class UDPL  implements Callable<DatagramPacket> {
 
             //[UDP HEADERS | "Vote For Me"| MAC Address of machine voted for] - Just for voting
             System.out.println(Arrays.toString(didVote).equals("Vote For Me"));
-            if(Arrays.toString(didVote).equals("Vote For Me") && !voted){
+            if(!voted){
                 DatagramPacket outPacket = new DatagramPacket(buf, buf.length);
                 outPacket.setAddress(address);
                 outPacket.setPort(port);
