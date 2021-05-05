@@ -6,9 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Future;
 
+
 public class UDPW  implements Callable<DatagramPacket> {
     protected DatagramSocket socket = null;
     private int port;
+    private int sendingPort;
     private boolean onElection;
     private String address;
     private byte[] buf = new byte[512];
@@ -17,8 +19,9 @@ public class UDPW  implements Callable<DatagramPacket> {
     //Wolf: 129.3.20.36
     //Rho: 129.3.20.24
 
-    public UDPW(int port, boolean onElection, String address) {
+    public UDPW(int port, boolean onElection, String address, int sendingPort) {
         this.port = port;
+        this.sendingPort = sendingPort;
         try {
             socket = new DatagramSocket(port);
         }
@@ -39,7 +42,7 @@ public class UDPW  implements Callable<DatagramPacket> {
             byte[] voteForMe = "Vote For Me".getBytes(StandardCharsets.UTF_8);
 
             try {
-                DatagramPacket startElection = new DatagramPacket(voteForMe, voteForMe.length, InetAddress.getByName(address), port);
+                DatagramPacket startElection = new DatagramPacket(voteForMe, voteForMe.length, InetAddress.getByName(address), sendingPort);
                 socket.send(startElection);
                 DatagramPacket recElection = new DatagramPacket(new byte[6], 6);
                 socket.setSoTimeout(15000);
@@ -47,6 +50,7 @@ public class UDPW  implements Callable<DatagramPacket> {
 
                 return recElection;
             } catch (IOException u) {
+                //we start an new election
                 u.printStackTrace();
                 System.exit(0);
             }
@@ -77,9 +81,9 @@ public class UDPW  implements Callable<DatagramPacket> {
                     socket.receive(inPacket);
 
                 } catch (IOException e) {
-
+                    System.out.println("Sending heartbeat");
                     try {
-                        DatagramPacket heartBeat = new DatagramPacket("alive".getBytes(StandardCharsets.UTF_8), "alive".getBytes(StandardCharsets.UTF_8).length, InetAddress.getByName(address), port);
+                        DatagramPacket heartBeat = new DatagramPacket("alive".getBytes(StandardCharsets.UTF_8), "alive".getBytes(StandardCharsets.UTF_8).length, InetAddress.getByName(address), sendingPort);
                         socket.send(heartBeat);
                         socket.setSoTimeout(7500);
                         socket.receive(inPacket);
