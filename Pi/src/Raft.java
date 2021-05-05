@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 //ASSUME WE ARE ON PI CURRENTLY
 //ASSUME WE ARE ON PI CURRENTLY
 
+//THIS IS PI
+
 public class Raft {
 
     private AtomicInteger timeLeft;
@@ -118,8 +120,8 @@ public class Raft {
         System.out.println("Election Started");
         myVotes = 1;
 
-        wolfC = new UDPW(2813, true,"129.3.20.36");
-        rhoC = new UDPW(2814, true,"129.3.20.24");
+        wolfC = new UDPW(2813, true,"129.3.20.36", 2811);
+        rhoC = new UDPW(2814, true,"129.3.20.24", 2812);
         futures.add(0, commanders.submit(wolfC));
         futures.add(1, commanders.submit(rhoC));
         System.out.println(futures.get(0).isDone());
